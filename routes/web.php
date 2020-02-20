@@ -14,3 +14,8 @@
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
+
+    // 登录
+$router->post('/login', ['uses' => 'UserController@login']);
+    // 注册
+$router->post('/register', ['uses' => 'UserController@register']);
