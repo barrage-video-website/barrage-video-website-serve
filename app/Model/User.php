@@ -15,6 +15,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     protected $table = 'user';
 
+    protected $primaryKey = 'user_id';
 
     public $timestamps = false;
     /**
@@ -44,7 +45,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'userId' => $this->user_id,
+            'nickname' => $this->nickname,
+            'account' => $this->account
+        ];
     }
 
 }
