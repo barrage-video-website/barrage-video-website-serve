@@ -15,7 +15,18 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-    // 登录
-$router->post('/login', ['uses' => 'UserController@login']);
-    // 注册
-$router->post('/register', ['uses' => 'UserController@register']);
+        // 登录
+    $router->post('/login', ['uses' => 'UserController@login']);
+
+        // 注册
+    $router->post('/register', ['uses' => 'UserController@register']);
+
+        // 通过中间件验证接口
+    $router->group(['middleware' => 'auth'],function() use ($router){
+
+            // 上传
+        $router->post('/upload', ['uses' => 'UserController@upload','middleware' => 'auth:user']);
+
+
+        
+    });
