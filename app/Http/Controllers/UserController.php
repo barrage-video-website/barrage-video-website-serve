@@ -159,7 +159,7 @@ class UserController extends BaseController
     }
 
     // 获取视频列表
-    public  function  getVideoList(Request $request){
+    public  function  getCartoonList(Request $request){
         // step 1. 验证数据
         $page = $request->input('page');
 
@@ -192,4 +192,29 @@ class UserController extends BaseController
         ]);
     }
 
+    public  function  getVideo(Request $request){
+        // step 1. 验证数据
+        $videoId = $request->input('videoId');
+
+        //  验证数据
+        $validator = Validator::make($request->all(), [
+            'videoId' => ['required'],
+        ],[
+            'videoId.required' => '视频id不能为空',
+        ]);
+
+        if($validator->fails()){
+            return Responder::error('0001',$validator->errors()->first());
+        }
+
+        // step 2. 通过videoId找到相应标题和路径
+        $video = Video::where('video_id',$videoId)
+            ->select('user_id as userId','video_title as videoTitle','video_cover_path as coverPath','video_path as videoPath')
+            ->first();
+
+        // step 3.返回
+        return Responder::success('成功获取视频',[
+            'video' => $video
+        ]);
+    }
 }

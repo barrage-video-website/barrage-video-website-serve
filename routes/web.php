@@ -22,7 +22,10 @@ $router->get('/', function () use ($router) {
     $router->post('/register', ['uses' => 'UserController@register']);
 
     // 获取视频列表
-    $router->get('/getVideoList', ['uses' => 'UserController@getVideoList']);
+    $router->get('/getVideoList', ['uses' => 'UserController@getCartoonList']);
+
+    // 获取视频列表
+    $router->get('/getVideo', ['uses' => 'UserController@getVideo']);
 
         // 通过中间件验证接口
     $router->group(['middleware' => 'auth'],function() use ($router){
