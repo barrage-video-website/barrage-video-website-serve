@@ -48,7 +48,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return [
             'userId' => $this->user_id,
             'nickname' => $this->nickname,
-            'account' => $this->account
+            'account' => $this->account,
+            'headPhoto' => $this->head_portrait
         ];
     }
 

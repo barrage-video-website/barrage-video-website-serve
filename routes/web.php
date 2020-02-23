@@ -21,12 +21,20 @@ $router->get('/', function () use ($router) {
         // 注册
     $router->post('/register', ['uses' => 'UserController@register']);
 
+    // 获取视频列表
+    $router->get('/getVideoList', ['uses' => 'UserController@getVideoList']);
+
         // 通过中间件验证接口
     $router->group(['middleware' => 'auth'],function() use ($router){
 
+            // 注销
+        $router->post('/logout', ['uses' => 'UserController@logout']);
+
             // 上传
-        $router->post('/upload', ['uses' => 'UserController@upload','middleware' => 'auth:user']);
+        $router->post('/upload', ['uses' => 'UserController@upload']);
 
 
-        
+
+
+
     });

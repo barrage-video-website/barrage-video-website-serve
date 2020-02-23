@@ -99,6 +99,7 @@ class UserController extends BaseController
     public function upload(Request $request){
         // step 1. 验证数据
         $video = $request->file('video');
+        $img = $request->file('img');
 
 //         //  验证数据
 //         $validator = Validator::make($request->all(), [
@@ -130,22 +131,65 @@ class UserController extends BaseController
 
         // step 4. 获取视频原名
         $filetOriginalName =  $video->getClientOriginalName();
+        $imgOriginalName =  $img->getClientOriginalName();
         //获取登录中用户
         $userId = Auth::guard('user')->payload()['userId'];
         // 将文件存储
         $filePath = Storage::disk('video')->putFileAs('',$video,$fileName);
-
+        $immPath = Storage::disk('image')->putFileAs('',$img,$imgOriginalName);
         // step 5.插入video记录
 
         Video::insert([
             'user_id'=> $userId,
             'video_path' => $filePath,
-            'video_name' => $filetOriginalName
+            'video_name' => $filetOriginalName,
+            'video_cover_name' => $imgOriginalName,
+            'video_cover_path' => $immPath
         ]);
 
 
         //step 6. 返回
         return Responder::success('上传成功');
+    }
+
+    // 注销
+    public function logout(){
+        app('auth')->parseToken()->invalidate();
+        return Responder::success('成功注销');
+    }
+
+    // 获取视频列表
+    public  function  getVideoList(Request $request){
+        // step 1. 验证数据
+        $page = $request->input('page');
+
+        //  验证数据
+        $validator = Validator::make($request->all(), [
+            'page' => ['required'],
+        ],[
+            'page.required' => '页数',
+        ]);
+
+        if($validator->fails()){
+            return Responder::error('0001',$validator->errors()->first());
+        }
+
+        // step 2. 随机拿出视频
+        $videoSize =8;
+
+        // 分页 获取问题答案
+        $videoLists=Video::skip($videoSize * ($page - 1))->take($videoSize)
+            ->select('video_id as videoId','video_cover_path as coverPath','video_title as coverTitle','user_id')
+            ->get();
+
+        // step 3. 通过user_id找到相应名称
+        foreach ($videoLists as $videoList){
+            $videoList->userName = User::where('user_id',$videoList->user_id)->value('nickname');
+        }
+
+        return Responder::success('获取列表成功',[
+            'videolists' => $videoLists
+        ]);
     }
 
 }
