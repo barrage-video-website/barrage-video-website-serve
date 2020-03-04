@@ -21,8 +21,11 @@ $router->get('/', function () use ($router) {
         // 注册
     $router->post('/register', ['uses' => 'UserController@register']);
 
-    // 获取视频列表
+    // 获取动画区
     $router->get('/getVideoList', ['uses' => 'UserController@getCartoonList']);
+
+    // 获取直播区
+    $router->get('/getLiveList', ['uses' => 'UserController@getLiveList']);
 
     // 获取视频列表
     $router->get('/getVideo', ['uses' => 'UserController@getVideo']);

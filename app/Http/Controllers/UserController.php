@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Model\User;
+use App\Model\Video;
+use App\Model\Live;
 use App\Helpers\Responder;
 
-use App\Model\Video;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -179,17 +180,53 @@ class UserController extends BaseController
 
         // 分页 获取问题答案
         $videoLists=Video::skip($videoSize * ($page - 1))->take($videoSize)
-            ->select('video_id as videoId','video_cover_path as coverPath','video_title as coverTitle','user_id')
+            ->select('video_id as id','video_cover_path as coverPath','video_title as coverTitle','user_id')
             ->get();
 
         // step 3. 通过user_id找到相应名称
         foreach ($videoLists as $videoList){
             $videoList->userName = User::where('user_id',$videoList->user_id)->value('nickname');
+            $videoList->type = 'video';
         }
 
         return Responder::success('获取列表成功',[
             'videolists' => $videoLists
         ]);
+    }
+
+    public function getLiveList(Request $request){
+        // step 1. 验证数据
+        $page = $request->input('page');
+
+        //  验证数据
+        $validator = Validator::make($request->all(), [
+            'page' => ['required'],
+        ],[
+            'page.required' => '页数',
+        ]);
+
+        if($validator->fails()){
+            return Responder::error('0001',$validator->errors()->first());
+        }
+
+        // step 2. 随机拿出直播
+        $videoSize =8;
+
+        // 分页 获取问题答案
+        $LiveLists=Live::skip($videoSize * ($page - 1))->take($videoSize)
+            ->select('live_id as id','live_cover_path as coverPath','Live_title as coverTitle','user_id')
+            ->get();
+
+        // step 3. 通过user_id找到相应名称
+        foreach ($LiveLists as $LiveList){
+            $LiveList->userName = User::where('user_id',$LiveList->user_id)->value('nickname');
+            $LiveList->type = 'live';
+        }
+
+        return Responder::success('获取列表成功',[
+            'LiveLists' => $LiveLists
+        ]);
+
     }
 
     public  function  getVideo(Request $request){
