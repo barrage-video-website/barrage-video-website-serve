@@ -6,8 +6,10 @@
     "type": "project",
     "require": {
         "php": "^7.2",
+        "illuminate/redis": "*",
         "laravel/lumen-framework": "^6.0",
         "league/flysystem": "^1.0",
+        "predis/predis": "^1.1",
         "tymon/jwt-auth": "1.0.0-rc.5.1"
     },
     "require-dev": {
