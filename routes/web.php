@@ -15,7 +15,7 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-        // 登录
+        // test
     $router->get('/test', ['uses' => 'UserController@test']);
 
         // 登录
