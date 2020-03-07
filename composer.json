@@ -6,6 +6,7 @@
     "type": "project",
     "require": {
         "php": "^7.2",
+        "doctrine/dbal": "^2.10",
         "illuminate/redis": "v6.18.0",
         "laravel/lumen-framework": "^6.0",
         "league/flysystem": "^1.0",
