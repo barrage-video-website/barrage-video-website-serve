@@ -16,6 +16,9 @@ $router->get('/', function () use ($router) {
 });
 
         // 登录
+    $router->get('/test', ['uses' => 'UserController@test']);
+
+        // 登录
     $router->post('/login', ['uses' => 'UserController@login']);
 
         // 注册

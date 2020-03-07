@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Lumen\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Redis;
 
 class UserController extends BaseController
 {
@@ -253,5 +254,12 @@ class UserController extends BaseController
         return Responder::success('成功获取视频',[
             'video' => $video
         ]);
+    }
+
+
+    public function test(){
+        Redis::set('name','2');
+        $values = Redis::get('name');
+        return $values;
     }
 }
