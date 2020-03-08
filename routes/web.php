@@ -15,8 +15,7 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-        // test
-    $router->get('/test', ['uses' => 'UserController@test']);
+
 
         // 登录
     $router->post('/login', ['uses' => 'UserController@login']);
@@ -25,13 +24,13 @@ $router->get('/', function () use ($router) {
     $router->post('/register', ['uses' => 'UserController@register']);
 
     // 获取动画区
-    $router->get('/getVideoList', ['uses' => 'UserController@getCartoonList']);
+    $router->get('/get-video-list', ['uses' => 'UserController@getCartoonList']);
 
     // 获取直播区
-    $router->get('/getLiveList', ['uses' => 'UserController@getLiveList']);
+    $router->get('/get-live-list', ['uses' => 'UserController@getLiveList']);
 
     // 获取视频列表
-    $router->get('/getVideo', ['uses' => 'UserController@getVideo']);
+    $router->get('/get-video', ['uses' => 'UserController@getVideo']);
 
         // 通过中间件验证接口
     $router->group(['middleware' => 'auth'],function() use ($router){
@@ -42,7 +41,8 @@ $router->get('/', function () use ($router) {
             // 上传
         $router->post('/upload', ['uses' => 'UserController@upload']);
 
-
+        // 发送弹幕
+        $router->post('/sent-barrage', ['uses' => 'UserController@sentBarrage']);
 
 
 

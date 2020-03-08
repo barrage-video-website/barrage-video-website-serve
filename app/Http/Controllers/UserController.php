@@ -257,9 +257,31 @@ class UserController extends BaseController
     }
 
 
-    public function test(){
-        Redis::set('name','2');
-        $values = Redis::get('name');
-        return $values;
+    public function sentBarrage(Request $request){
+        // step 1. 验证数据
+        $barrage = $request->input('barrage');
+        $videoId = $request->input('videoId');
+
+        //  验证数据
+        $validator = Validator::make($request->all(), [
+            'barrage' => ['required'],
+            'videoId' => ['required'],
+        ],[
+            'barrage.required' => '弹幕不能为空',
+            'videoId.required' => '视频号不能为空噢',
+        ]);
+
+        if($validator->fails()){
+            return Responder::error('0001',$validator->errors()->first());
+        }
+
+
+        // step 2. 将内容缓存到redis服务器
+
+        Redis::rpush($videoId,$barrage);
+
+
+
+        return Responder::success('成功发送弹幕');
     }
 }
