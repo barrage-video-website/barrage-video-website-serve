@@ -311,16 +311,16 @@ class UserController extends BaseController implements WebSocketHandlerInterface
 
         Redis::rpush($videoId,"$currentTime:$barrage");
 
-        $this->server = new Swoole\WebSocket\Server("0.0.0.0", 9502);
-        $this->server->on('open', function (Swoole\WebSocket\Server $server, $request) {
+        $ws = new Swoole\WebSocket\Server("0.0.0.0", 9502);
+        $ws->on('open', function (Swoole\WebSocket\Server $server, $request) {
             echo "来自后端:打开websocket成功";
             $ws->push($request->fd, "hello, welcome\n");
         });
-        $this->server->on('message', function (Swoole\WebSocket\Server $server, $frame) {
+        $ws->on('message', function (Swoole\WebSocket\Server $server, $frame) {
             echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
             $server->push($frame->fd, "this is server");
         });
-        $this->server->on('close', function ($ser, $fd) {
+        $ws->on('close', function ($ser, $fd) {
             echo "client {$fd} closed\n";
         });
         // $this->server->on('request', function ($request, $response) {
@@ -333,7 +333,7 @@ class UserController extends BaseController implements WebSocketHandlerInterface
         //         }
         //     }
         // });
-        $this->server->start();
+        $ws->start();
 
         return Responder::success('成功发送弹幕');
     }
