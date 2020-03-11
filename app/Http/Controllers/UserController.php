@@ -7,6 +7,10 @@ use App\Model\Video;
 use App\Model\Live;
 use App\Helpers\Responder;
 
+use Hhxsv5\LaravelS\Swoole\WebSocketHandlerInterface;
+use Swoole\Http\Request as SwooleRequest;
+use Swoole\WebSocket\Frame;
+use Swoole\WebSocket\Server;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -14,8 +18,54 @@ use Illuminate\Support\Facades\Storage;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Redis;
 
-class UserController extends BaseController
+class UserController extends BaseController implements WebSocketHandlerInterface
 {
+    public $server;
+
+    // 声明没有参数的构造函数
+    public function __construct()
+    {
+        $this->server = new Swoole\WebSocket\Server("0.0.0.0", 9502);
+        $this->server->on('open', function (Swoole\WebSocket\Server $server, $request) {
+            echo "打开websocket成功";
+        });
+        $this->server->on('message', function (Swoole\WebSocket\Server $server, $frame) {
+            echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
+            $server->push($frame->fd, "this is server");
+        });
+        $this->server->on('close', function ($ser, $fd) {
+            echo "client {$fd} closed\n";
+        });
+        // $this->server->on('request', function ($request, $response) {
+        //     // 接收http请求从get获取message参数的值，给用户推送
+        //     // $this->server->connections 遍历所有websocket连接用户的fd，给所有用户推送
+        //     foreach ($this->server->connections as $fd) {
+        //         // 需要先判断是否是正确的websocket连接，否则有可能会push失败
+        //         if ($this->server->isEstablished($fd)) {
+        //             $this->server->push($fd, $request->get['message']);
+        //         }
+        //     }
+        // });
+        $this->server->start();
+    }
+    // public function onOpen(Server $server, Request $request)
+    // {
+    //     // 在触发onOpen事件之前，建立WebSocket的HTTP请求已经经过了Laravel的路由，
+    //     // 所以Laravel的Request、Auth等信息是可读的，Session是可读写的，但仅限在onOpen事件中。
+    //     // \Log::info('New WebSocket connection', [$request->fd, request()->all(), session()->getId(), session('xxx'), session(['yyy' => time()])]);
+    //     $server->push($request->fd, 'Welcome to track');
+    //     // throw new \Exception('an exception');// 此时抛出的异常上层会忽略，并记录到Swoole日志，需要开发者try/catch捕获处理
+    // }
+    // public function onMessage(Server $server, Frame $frame)
+    // {
+    //     // \Log::info('Received message', [$frame->fd, $frame->data, $frame->opcode, $frame->finish]);
+    //     $server->push($frame->fd, date('Y-m-d H:i:s'));
+    //     // throw new \Exception('an exception');// 此时抛出的异常上层会忽略，并记录到Swoole日志，需要开发者try/catch捕获处理
+    // }
+    // public function onClose(Server $server, $fd, $reactorId)
+    // {
+    //     // throw new \Exception('an exception');// 此时抛出的异常上层会忽略，并记录到Swoole日志，需要开发者try/catch捕获处理
+    // }
     //
     public function login(Request $request){
         // step 1. 验证数据
@@ -261,14 +311,17 @@ class UserController extends BaseController
         // step 1. 验证数据
         $barrage = $request->input('barrage');
         $videoId = $request->input('videoId');
+        $currentTime = $request->input('currentTime');
 
         //  验证数据
         $validator = Validator::make($request->all(), [
             'barrage' => ['required'],
             'videoId' => ['required'],
+            'currentTime' => ['required'],
         ],[
             'barrage.required' => '弹幕不能为空',
             'videoId.required' => '视频号不能为空噢',
+            'currentTime.required' => '当前时间不能为空',
         ]);
 
         if($validator->fails()){
@@ -278,10 +331,15 @@ class UserController extends BaseController
 
         // step 2. 将内容缓存到redis服务器
 
-        Redis::rpush($videoId,$barrage);
+        Redis::rpush($videoId,"$currentTime:$barrage");
 
 
 
         return Responder::success('成功发送弹幕');
+    }
+
+
+    public function deleteBarrage(){
+        Redis::flushAll();
     }
 }

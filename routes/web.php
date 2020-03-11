@@ -44,6 +44,7 @@ $router->get('/', function () use ($router) {
         // 发送弹幕
         $router->post('/sent-barrage', ['uses' => 'UserController@sentBarrage']);
 
-
+        // 删除弹幕
+        $router->post('/delete-barrage', ['uses' => 'UserController@deleteBarrage']);
 
     });
