@@ -7,10 +7,6 @@ use App\Model\Video;
 use App\Model\Live;
 use App\Helpers\Responder;
 
-use Hhxsv5\LaravelS\Swoole\WebSocketHandlerInterface;
-use Swoole\Http\Request as SwooleRequest;
-use Swoole\WebSocket\Frame;
-use Swoole\WebSocket\Server;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Redis;
 
-class UserController extends BaseController implements WebSocketHandlerInterface
+class UserController extends BaseController
 {
 
     // 声明没有参数的构造函数
@@ -311,18 +307,18 @@ class UserController extends BaseController implements WebSocketHandlerInterface
 
         Redis::rpush($videoId,"$currentTime:$barrage");
 
-        $ws = new Swoole\WebSocket\Server("0.0.0.0", 9502);
-        $ws->on('open', function (Swoole\WebSocket\Server $server, $request) {
-            echo "来自后端:打开websocket成功";
-            $ws->push($request->fd, "hello, welcome\n");
-        });
-        $ws->on('message', function (Swoole\WebSocket\Server $server, $frame) {
-            echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
-            $server->push($frame->fd, "this is server");
-        });
-        $ws->on('close', function ($ser, $fd) {
-            echo "client {$fd} closed\n";
-        });
+        //$ws = new Server('127.0.0.1','9502');
+       // $ws->on('open', function (Swoole\WebSocket\Server $server, $request) {
+           // echo "来自后端:打开websocket成功";
+         //   $ws->push($request->fd, "hello, welcome\n");
+       // });
+      //  $ws->on('message', function (Swoole\WebSocket\Server $server, $frame) {
+    //        echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
+         //   $server->push($frame->fd, "this is server");
+       // });
+       // $ws->on('close', function ($ser, $fd) {
+          //  echo "client {$fd} closed\n";
+        //});
         // $this->server->on('request', function ($request, $response) {
         //     // 接收http请求从get获取message参数的值，给用户推送
         //     // $this->server->connections 遍历所有websocket连接用户的fd，给所有用户推送
