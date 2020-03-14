@@ -4,7 +4,7 @@
  * @see https://github.com/hhxsv5/laravel-s/blob/master/Settings.md  English
  */
 return [
-    'listen_ip'                => env('LARAVELS_LISTEN_IP', '127.0.0.1'),
+    'listen_ip'                => env('LARAVELS_LISTEN_IP', '*'),
     'listen_port'              => env('LARAVELS_LISTEN_PORT', 5200),
     'socket_type'              => defined('SWOOLE_SOCK_TCP') ? SWOOLE_SOCK_TCP : 1,
     'enable_coroutine_runtime' => false,
@@ -20,7 +20,8 @@ return [
     ],
     'event_handlers'           => [],
     'websocket'                => [
-        'enable' => false,
+        'enable' => true,
+	'handler' => \App\Services\WebSocketService::class,
         //'handler' => XxxWebSocketHandler::class,
     ],
     'sockets'                  => [],
@@ -44,7 +45,15 @@ return [
         'max_wait_time' => 5,
     ],
     'events'                   => [],
-    'swoole_tables'            => [],
+    'swoole_tables'            => [
+        // 场景：WebSocket中UserId与FD绑定
+        'ws' => [// Key为Table名称，使用时会自动添加Table后缀，避免重名。这里定义名为wsTable的Table
+            'size'   => 102400,//Table的最大行数
+            'column' => [// Table的列定义
+                ['name' => 'value', 'type' => \Swoole\Table::TYPE_INT, 'size' => 8],
+            		],
+        	],
+	],
     'register_providers'       => [],
     'cleaners'                 => [
         // See LaravelS's built-in cleaners: https://github.com/hhxsv5/laravel-s/blob/master/Settings.md#cleaners

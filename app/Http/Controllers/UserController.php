@@ -7,6 +7,7 @@ use App\Model\Video;
 use App\Model\Live;
 use App\Helpers\Responder;
 
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -22,25 +23,7 @@ class UserController extends BaseController
     {
 
     }
-    // public function onOpen(Server $server, Request $request)
-    // {
-    //     // 在触发onOpen事件之前，建立WebSocket的HTTP请求已经经过了Laravel的路由，
-    //     // 所以Laravel的Request、Auth等信息是可读的，Session是可读写的，但仅限在onOpen事件中。
-    //     // \Log::info('New WebSocket connection', [$request->fd, request()->all(), session()->getId(), session('xxx'), session(['yyy' => time()])]);
-    //     $server->push($request->fd, 'Welcome to track');
-    //     // throw new \Exception('an exception');// 此时抛出的异常上层会忽略，并记录到Swoole日志，需要开发者try/catch捕获处理
-    // }
-    // public function onMessage(Server $server, Frame $frame)
-    // {
-    //     // \Log::info('Received message', [$frame->fd, $frame->data, $frame->opcode, $frame->finish]);
-    //     $server->push($frame->fd, date('Y-m-d H:i:s'));
-    //     // throw new \Exception('an exception');// 此时抛出的异常上层会忽略，并记录到Swoole日志，需要开发者try/catch捕获处理
-    // }
-    // public function onClose(Server $server, $fd, $reactorId)
-    // {
-    //     // throw new \Exception('an exception');// 此时抛出的异常上层会忽略，并记录到Swoole日志，需要开发者try/catch捕获处理
-    // }
-    //
+
     public function login(Request $request){
         // step 1. 验证数据
         $account = $request->input('account');
@@ -306,34 +289,28 @@ class UserController extends BaseController
         // step 2. 将内容缓存到redis服务器
 
         Redis::rpush($videoId,"$currentTime:$barrage");
+	
+        $fd = 2; // Find fd by userId from a map [userId=>fd].
+        /**@var \Swoole\WebSocket\Server $swoole */
+        $swoole = app('swoole');
+	$datas	=	Redis::lrange ('1', 0, -1);
+	foreach($datas as $data){
+        	$success = $swoole->push($fd,$data);
+	}
 
-        //$ws = new Server('127.0.0.1','9502');
-       // $ws->on('open', function (Swoole\WebSocket\Server $server, $request) {
-           // echo "来自后端:打开websocket成功";
-         //   $ws->push($request->fd, "hello, welcome\n");
-       // });
-      //  $ws->on('message', function (Swoole\WebSocket\Server $server, $frame) {
-    //        echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
-         //   $server->push($frame->fd, "this is server");
-       // });
-       // $ws->on('close', function ($ser, $fd) {
-          //  echo "client {$fd} closed\n";
-        //});
-        // $this->server->on('request', function ($request, $response) {
-        //     // 接收http请求从get获取message参数的值，给用户推送
-        //     // $this->server->connections 遍历所有websocket连接用户的fd，给所有用户推送
-        //     foreach ($this->server->connections as $fd) {
-        //         // 需要先判断是否是正确的websocket连接，否则有可能会push失败
-        //         if ($this->server->isEstablished($fd)) {
-        //             $this->server->push($fd, $request->get['message']);
-        //         }
-        //     }
-        // });
-        $ws->start();
-
-        return Responder::success('成功发送弹幕');
+        return Responder::success('成功发送弹幕',[
+		'test' => $swoole
+	]);
     }
 
+    public function push()
+    {
+       // $fd = 1; // Find fd by userId from a map [userId=>fd].
+        /**@var \Swoole\WebSocket\Server $swoole */
+        $swoole = app('swoole');
+        //$success = $swoole->push($fd, 'Push data to fd#1 in Controller');
+        var_dump($swoole);
+    }
 
     public function deleteBarrage(){
         Redis::flushAll();

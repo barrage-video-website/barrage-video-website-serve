@@ -47,4 +47,6 @@ $router->get('/', function () use ($router) {
         // 删除弹幕
         $router->post('/delete-barrage', ['uses' => 'UserController@deleteBarrage']);
 
+        // 删除弹幕
+        $router->post('/push', ['uses' => 'UserController@push']);
     });

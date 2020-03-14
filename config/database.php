@@ -114,6 +114,7 @@ return [
             'password' => env('REDIS_PASSWORD', '123456'),
             'port' => env('REDIS_PORT', 6379),
             'database' => 0,
+		'persistent' => true
         ],
     ],
 
