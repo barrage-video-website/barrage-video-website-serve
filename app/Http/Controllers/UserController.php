@@ -290,27 +290,10 @@ class UserController extends BaseController
 
         Redis::rpush($videoId,"$currentTime:$barrage");
 	
-        $fd = 2; // Find fd by userId from a map [userId=>fd].
-        /**@var \Swoole\WebSocket\Server $swoole */
-        $swoole = app('swoole');
-	$datas	=	Redis::lrange ('1', 0, -1);
-	foreach($datas as $data){
-        	$success = $swoole->push($fd,$data);
-	}
 
-        return Responder::success('成功发送弹幕',[
-		'test' => $swoole
-	]);
+        return Responder::success('成功发送弹幕');
     }
 
-    public function push()
-    {
-       // $fd = 1; // Find fd by userId from a map [userId=>fd].
-        /**@var \Swoole\WebSocket\Server $swoole */
-        $swoole = app('swoole');
-        //$success = $swoole->push($fd, 'Push data to fd#1 in Controller');
-        var_dump($swoole);
-    }
 
     public function deleteBarrage(){
         Redis::flushAll();

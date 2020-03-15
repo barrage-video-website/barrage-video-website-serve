@@ -32,20 +32,9 @@ class WebSocketService implements WebSocketHandlerInterface
         // 广播
         foreach ($this->wsTable as $key => $row) {
             if (strpos($key, 'uid:') === 0 && $server->isEstablished($row['value'])) {
-                $content = sprintf('Broadcast: new message "%s" from #%d', $frame->data, $frame->fd);
-                $server->push($row['value'], $content);
+                $server->push($row['value'], $frame->data);
             }
         }
-	//intime
-  //      foreach($server->connections as $fd){
-   //         if (!$server->isEstablished($fd)) {
-                // 如果连接不可用则忽略
-    //            continue;
-    //        }
-    //        $server->push($fd , $frame->data); // 服务端通过 push 方法向所有连接的客户端发送数据
-        //}
-        //$server->push($frame->fd, date('Y-m-d H:i:s'));
-        // throw new \Exception('an exception');// 此时抛出的异常上层会忽略，并记录到Swoole日志，需要开发者try/catch捕获处理
   	}
     public function onClose(Server $server, $fd, $reactorId)
     {
