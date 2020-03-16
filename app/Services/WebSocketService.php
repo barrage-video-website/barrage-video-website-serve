@@ -12,6 +12,7 @@ class WebSocketService implements WebSocketHandlerInterface
 {
     private $wsTable;
     private $videoList;
+    private $videoId;
     // 声明没有参数的构造函数
     public function __construct()
     {
@@ -25,18 +26,22 @@ class WebSocketService implements WebSocketHandlerInterface
         $userId = mt_rand(1000, 10000);
         $this->wsTable->set('uid:' . $userId, ['value' => $request->fd]);// 绑定uid到fd的映射
         $this->wsTable->set('fd:' . $request->fd, ['value' => $userId]);// 绑定fd到uid的映射
-        $server->push($request->fd, "Welcome to Track #{$request->fd}");
-        $unsortVideoList = Redis::lrange ('1',0,-1);
-        usort($unsortVideoList,function($a,$b){
-            $cur = explode(":",$a)[0];
-            $nex = explode(":",$b)[0];
-            return ($cur < $nex) ? -1: 1;
-        });
-        $this->videoList = $unsortVideoList;
-       // var_dump($this->videoList);
+        $server->push($request->fd, "Welcome to Track");
     }
     public function onMessage(Server $server, Frame $frame)
     {
+        if($this->videoList ==null){
+            $data=$frame->data;
+            $unvideoIds = explode(":",$data);
+            $this->videoId = $unvideoIds[1];
+            $unsortVideoList = Redis::lrange ($this->videoId,0,-1);
+            usort($unsortVideoList,function($a,$b){
+                $cur = explode(":",$a)[0];
+                $nex = explode(":",$b)[0];
+                return ($cur < $nex) ? -1: 1;
+            });
+            $this->videoList = $unsortVideoList;
+        }
         // \Log::info('Received message', [$frame->fd, $frame->data, $frame->opcode, $frame->finish]);
         // 广播
         foreach ($this->wsTable as $key => $row) {
@@ -44,7 +49,7 @@ class WebSocketService implements WebSocketHandlerInterface
                 $server->push($row['value'], $frame->data);
             }
         }
-        // if($this->videoList !=null){
+        if($this->videoId !=null){
             // 推送当前秒数的弹幕
             foreach ($this->wsTable as $key => $row) {
                 if (strpos($key, 'uid:') === 0 && $server->isEstablished($row['value'])) {
@@ -57,6 +62,9 @@ class WebSocketService implements WebSocketHandlerInterface
                     }
                 }
             }
+        }
+        // if($this->videoList !=null){
+
         // }
   	}
     public function onClose(Server $server, $fd, $reactorId)
