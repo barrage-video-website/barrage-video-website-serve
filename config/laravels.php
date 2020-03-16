@@ -26,17 +26,6 @@ return [
     ],
     'sockets'                  => [],
     'processes'                => [
-        'test' => [ // Key为进程名
-            'class'    => \App\Processes\RedisProccess::class,
-            'redirect' => false, // 是否重定向输入输出
-            'pipe'     => 0,     // 管道类型：0不创建管道，1创建SOCK_STREAM类型管道，2创建SOCK_DGRAM类型管道
-            'enable'   => true,  // 是否启用，默认true
-            //'queue'    => [ // 启用消息队列作为进程间通信，配置空数组表示使用默认参数
-            //    'msg_key'  => 0,    // 消息队列的KEY，默认会使用ftok(__FILE__, 1)
-            //    'mode'     => 2,    // 通信模式，默认为2，表示争抢模式
-            //    'capacity' => 8192, // 单个消息长度，长度受限于操作系统内核参数的限制，默认为8192，最大不超过65536
-            //],
-        ],
     ],
     'timer'                    => [
         'enable'        => env('LARAVELS_TIMER', false),

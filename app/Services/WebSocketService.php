@@ -33,6 +33,7 @@ class WebSocketService implements WebSocketHandlerInterface
             return ($cur < $nex) ? -1: 1;
         });
         $this->videoList = $unsortVideoList;
+       // var_dump($this->videoList);
     }
     public function onMessage(Server $server, Frame $frame)
     {
@@ -43,7 +44,7 @@ class WebSocketService implements WebSocketHandlerInterface
                 $server->push($row['value'], $frame->data);
             }
         }
-        if($this->videoList !=null){
+        // if($this->videoList !=null){
             // 推送当前秒数的弹幕
             foreach ($this->wsTable as $key => $row) {
                 if (strpos($key, 'uid:') === 0 && $server->isEstablished($row['value'])) {
@@ -53,11 +54,10 @@ class WebSocketService implements WebSocketHandlerInterface
                             $server->push($row['value'],explode(":",$val)[1] );
                             unset($val);
                         }
-                        break;
                     }
                 }
             }
-        }
+        // }
   	}
     public function onClose(Server $server, $fd, $reactorId)
     {
