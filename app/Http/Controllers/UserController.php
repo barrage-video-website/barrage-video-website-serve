@@ -295,7 +295,8 @@ class UserController extends BaseController
     }
 
 
-    public function deleteBarrage(){
-        Redis::flushAll();
+    public function test(){
+        $a= Redis::lrange ('1',0,-1);
+        return  var_dump($a);
     }
 }

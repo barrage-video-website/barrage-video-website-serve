@@ -4,12 +4,14 @@ use Hhxsv5\LaravelS\Swoole\WebSocketHandlerInterface;
 use Swoole\Http\Request;
 use Swoole\WebSocket\Frame;
 use Swoole\WebSocket\Server;
+use Illuminate\Support\Facades\Redis;
 /**
  * @see https://wiki.swoole.com/#/start/start_ws_server
  */
 class WebSocketService implements WebSocketHandlerInterface
 {
     private $wsTable;
+    private $videoList;
     // 声明没有参数的构造函数
     public function __construct()
     {
@@ -23,16 +25,37 @@ class WebSocketService implements WebSocketHandlerInterface
         $userId = mt_rand(1000, 10000);
         $this->wsTable->set('uid:' . $userId, ['value' => $request->fd]);// 绑定uid到fd的映射
         $this->wsTable->set('fd:' . $request->fd, ['value' => $userId]);// 绑定fd到uid的映射
-        $server->push($request->fd, "Welcome to LaravelS #{$request->fd}");
+        $server->push($request->fd, "Welcome to Track #{$request->fd}");
+        $unsortVideoList = Redis::lrange ('1',0,-1);
+        usort($unsortVideoList,function($a,$b){
+            $cur = explode(":",$a)[0];
+            $nex = explode(":",$b)[0];
+            return ($cur < $nex) ? -1: 1;
+        });
+        $this->videoList = $unsortVideoList;
     }
     public function onMessage(Server $server, Frame $frame)
     {
-
         // \Log::info('Received message', [$frame->fd, $frame->data, $frame->opcode, $frame->finish]);
         // 广播
         foreach ($this->wsTable as $key => $row) {
             if (strpos($key, 'uid:') === 0 && $server->isEstablished($row['value'])) {
                 $server->push($row['value'], $frame->data);
+            }
+        }
+        if($this->videoList !=null){
+            // 推送当前秒数的弹幕
+            foreach ($this->wsTable as $key => $row) {
+                if (strpos($key, 'uid:') === 0 && $server->isEstablished($row['value'])) {
+                    foreach($this->videoList as $val){
+                        $cur = explode(":",$val)[0];
+                        if(ceil($cur)==$frame->data){
+                            $server->push($row['value'],explode(":",$val)[1] );
+                            unset($val);
+                        }
+                        break;
+                    }
+                }
             }
         }
   	}
