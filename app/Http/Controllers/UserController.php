@@ -295,8 +295,7 @@ class UserController extends BaseController
     }
 
 
-    public function test(){
-        $a= Redis::lrange ('1',0,-1);
-        return  var_dump($a);
+    public function danmaku(){
+        return Responder::success('成功发送弹幕');
     }
 }

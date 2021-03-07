@@ -12,10 +12,11 @@
 */
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+    return"asdasdasd";
 });
 
-
+        // 登录
+    // $router::resource('/danmaku', ['uses' => 'UserController@danmaku']);
 
         // 登录
     $router->post('/login', ['uses' => 'UserController@login']);
