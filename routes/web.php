@@ -45,9 +45,15 @@ $router->get('/', function () use ($router) {
         // 发送弹幕
         $router->post('/sent-barrage', ['uses' => 'UserController@sentBarrage']);
 
-        // 删除弹幕
-        $router->post('/delete-barrage', ['uses' => 'UserController@deleteBarrage']);
+        // // 删除弹幕
+        // $router->post('/delete-barrage', ['uses' => 'UserController@deleteBarrage']);
 
-        // 删除弹幕
-        $router->post('/test', ['uses' => 'UserController@test']);
+        // // 删除弹幕
+        // $router->post('/test', ['uses' => 'UserController@test']);
+
+        //  获取评论区
+        $router->get('/get-comment-list', ['uses' => 'UserController@getCommentList']);
+
+        //  发送评论
+        $router->post('/sent-comment', ['uses' => 'UserController@sentComment']);
     });
