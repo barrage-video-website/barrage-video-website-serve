@@ -12,7 +12,7 @@
 */
 
 $router->get('/', function () use ($router) {
-    return"asdasdasd";
+    return"laravel-S";
 });
 
         // 登录
@@ -33,6 +33,10 @@ $router->get('/', function () use ($router) {
     // 获取视频列表
     $router->get('/get-video', ['uses' => 'UserController@getVideo']);
 
+    //  获取评论区
+    $router->get('/get-comment-list', ['uses' => 'UserController@getCommentList']);
+    
+
         // 通过中间件验证接口
     $router->group(['middleware' => 'auth'],function() use ($router){
 
@@ -51,9 +55,8 @@ $router->get('/', function () use ($router) {
         // // 删除弹幕
         // $router->post('/test', ['uses' => 'UserController@test']);
 
-        //  获取评论区
-        $router->get('/get-comment-list', ['uses' => 'UserController@getCommentList']);
+
 
         //  发送评论
-        $router->post('/sent-comment', ['uses' => 'UserController@sentComment']);
+        $router->post('/send-comment', ['uses' => 'UserController@sendComment']);
     });
