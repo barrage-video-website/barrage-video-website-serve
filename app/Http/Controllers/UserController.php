@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Model\User;
 use App\Model\Video;
 use App\Model\Live;
+use App\Model\Comment;
 use App\Helpers\Responder;
 
 
@@ -295,8 +296,81 @@ class UserController extends BaseController
     }
 
 
-    public function test(){
-        $a= Redis::lrange ('1',0,-1);
-        return  var_dump($a);
+    public function getCommentList(Request $request){
+        // step 1. 验证数据
+        $videoId = $request->input('videoId');
+        $page = $request->input('page');
+
+        //  验证数据
+        $validator = Validator::make($request->all(), [
+            'videoId' => ['required'],
+            'page' => ['required'],
+        ],[
+            'videoId.required' => 'videoId不能为空',
+            'page.required' => '页数不能为空',
+        ]);
+
+        if($validator->fails()){
+            return Responder::error('0001',$validator->errors()->first());
+        }
+
+        // step 2. 评论
+        $commentSize =8;
+
+        // 分页 获取评论答案
+        $commentLists=Comment::skip($commentSize * ($page - 1))->take($commentSize)
+            ->select('comment_id as commentId','video_id as videoId','user_id as userId','content as commentText')
+            ->get();
+
+        // step 3. 通过user_id找到相应
+        foreach ($commentLists as $comment){
+            $comment->userNickname = User::where('user_id',$comment->userId)->value('nickname');
+            $comment->headPhotoUrl = User::where('user_id',$comment->userId)->value('head_portrait');
+        }
+
+        // step4. 评论
+        return Responder::success('获取成功',[
+            'commentLists' => $commentLists
+        ]);
     }
+
+    public function sendComment(Request $request){
+        // step 1. 验证数据
+        $videoId = $request->input('videoId');
+        $userId = $request->input('userId');
+        $commentText = $request->input('commentText');
+
+
+        //  验证数据
+        $validator = Validator::make($request->all(), [
+            'videoId' => ['required'],
+            'userId' => ['required'],
+            'commentText' => ['required']
+        ],[
+            'videoId.required' => 'videoId不能为空',
+            'userId.required' => 'userId不能为空',
+            'commentText.required' => 'commentText不能为空'
+        ]);
+
+        if($validator->fails()){
+            return Responder::error('0001',$validator->errors()->first());
+        }
+
+        // step 2. 插入评论
+        $comment = new Comment();
+        $comment->video_id = $videoId;
+        $comment->user_id = $userId;
+        $comment->content = $commentText;
+        $comment->save();
+
+        //step 4. 返回
+        return Responder::success('评论成功');
+    }
+    public function getServerIp(Request $request){
+        return Responder::success('ip',[
+        'serverIp' => $_SERVER["HTTP_HOST"]
+    ]);
+    }
+
+
 }

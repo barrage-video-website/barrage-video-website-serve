@@ -30,6 +30,7 @@ class WebSocketService implements WebSocketHandlerInterface
     }
     public function onMessage(Server $server, Frame $frame)
     {
+        //拿非关系型数据库数据
         if($this->videoList ==null){
             $data=$frame->data;
             $unvideoIds = explode(":",$data);
@@ -42,15 +43,9 @@ class WebSocketService implements WebSocketHandlerInterface
             });
             $this->videoList = $unsortVideoList;
         }
-        // \Log::info('Received message', [$frame->fd, $frame->data, $frame->opcode, $frame->finish]);
-        // 广播
-        foreach ($this->wsTable as $key => $row) {
-            if (strpos($key, 'uid:') === 0 && $server->isEstablished($row['value'])) {
-                $server->push($row['value'], $frame->data);
-            }
-        }
+
         if($this->videoId !=null){
-            // 推送当前秒数的弹幕
+            // 广播推送当前秒数的弹幕
             foreach ($this->wsTable as $key => $row) {
                 if (strpos($key, 'uid:') === 0 && $server->isEstablished($row['value'])) {
                     foreach($this->videoList as $val){
@@ -63,9 +58,6 @@ class WebSocketService implements WebSocketHandlerInterface
                 }
             }
         }
-        // if($this->videoList !=null){
-
-        // }
   	}
     public function onClose(Server $server, $fd, $reactorId)
     {
