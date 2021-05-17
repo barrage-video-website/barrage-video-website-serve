@@ -21,17 +21,20 @@ $router->get('/', function () use ($router) {
         // 登录
     $router->post('/login', ['uses' => 'UserController@login']);
 
+        // ip
+    $router->get('/get-server-ip', ['uses' => 'UserController@getServerIp']);
+
         // 注册
     $router->post('/register', ['uses' => 'UserController@register']);
 
     // 获取动画区
     $router->get('/get-video-list', ['uses' => 'UserController@getCartoonList']);
 
-    // 获取直播区
-    $router->get('/get-live-list', ['uses' => 'UserController@getLiveList']);
-
     // 获取视频列表
     $router->get('/get-video', ['uses' => 'UserController@getVideo']);
+
+    // 获取直播区
+    $router->get('/get-live-list', ['uses' => 'UserController@getLiveList']);
 
     //  获取评论区
     $router->get('/get-comment-list', ['uses' => 'UserController@getCommentList']);
@@ -39,7 +42,8 @@ $router->get('/', function () use ($router) {
 
         // 通过中间件验证接口
     $router->group(['middleware' => 'auth'],function() use ($router){
-
+        //  发送评论
+        $router->post('/send-comment', ['uses' => 'UserController@sendComment']);
             // 注销
         $router->post('/logout', ['uses' => 'UserController@logout']);
 
@@ -49,6 +53,8 @@ $router->get('/', function () use ($router) {
         // 发送弹幕
         $router->post('/sent-barrage', ['uses' => 'UserController@sentBarrage']);
 
+
+
         // // 删除弹幕
         // $router->post('/delete-barrage', ['uses' => 'UserController@deleteBarrage']);
 
@@ -57,6 +63,5 @@ $router->get('/', function () use ($router) {
 
 
 
-        //  发送评论
-        $router->post('/send-comment', ['uses' => 'UserController@sendComment']);
+
     });

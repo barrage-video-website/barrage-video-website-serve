@@ -366,7 +366,11 @@ class UserController extends BaseController
         //step 4. 返回
         return Responder::success('评论成功');
     }
-
+    public function getServerIp(Request $request){
+        return Responder::success('ip',[
+        'serverIp' => $_SERVER["HTTP_HOST"]
+    ]);
+    }
 
 
 }
